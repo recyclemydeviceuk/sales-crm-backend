@@ -1,0 +1,25 @@
+# Render Blueprint for the Sales CRM backend.
+# New + → Blueprint → pick the recyclemydeviceuk/sales-crm-backend repo.
+# Render reads this file and provisions the web service with the right settings.
+services:
+  - type: web
+    name: sales-crm-backend
+    runtime: node
+    plan: free
+    branch: main
+    rootDir: .
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: MONGODB_URI       # your MongoDB Atlas connection string
+        sync: false
+      - key: JWT_SECRET        # token signing secret
+        sync: false
+      - key: ADMIN_SETUP_KEY   # required to create users
+        sync: false
+      - key: CLIENT_ORIGIN     # https://sales-crm-frontend-vert.vercel.app
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
