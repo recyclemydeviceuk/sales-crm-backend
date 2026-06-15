@@ -1,10 +1,12 @@
 import express from 'express'
 import cors from 'cors'
 import morgan from 'morgan'
+import auth from './routes/auth.js'
 import leads from './routes/leads.js'
 import lists from './routes/lists.js'
 import settings from './routes/settings.js'
 import stats from './routes/stats.js'
+import { requireAuth } from './middleware/auth.js'
 
 export function createApp() {
   const app = express()
@@ -15,10 +17,15 @@ export function createApp() {
   app.use(morgan('dev'))
 
   app.get('/api/health', (req, res) => res.json({ ok: true, ts: Date.now() }))
-  app.use('/api/leads', leads)
-  app.use('/api/lists', lists)
-  app.use('/api/settings', settings)
-  app.use('/api/stats', stats)
+
+  // Public auth routes (login / register / me).
+  app.use('/api/auth', auth)
+
+  // Everything below requires a valid session.
+  app.use('/api/leads', requireAuth, leads)
+  app.use('/api/lists', requireAuth, lists)
+  app.use('/api/settings', requireAuth, settings)
+  app.use('/api/stats', requireAuth, stats)
 
   // 404 + error handler
   app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }))
